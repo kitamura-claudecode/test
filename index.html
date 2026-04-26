@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>アラームアプリ</title>
+  <title>犬種図鑑 — 今の気分に合う犬を見つけよう</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -16,50 +16,13 @@
     <div class="orb orb3"></div>
   </div>
 
-  <div class="container">
-    <header class="header">
-      <div class="logo">⏰</div>
-      <h1>Alarm Clock</h1>
-    </header>
+  <div id="app"></div>
 
-    <div class="clock-card">
-      <div class="date" id="date"></div>
-      <div class="clock" id="clock">00:00:00</div>
-      <div class="clock-bar"></div>
-    </div>
-
-    <div class="glass-card add-alarm">
-      <h2><span class="icon">＋</span> アラームを追加</h2>
-      <div class="input-row">
-        <div class="input-wrap">
-          <label>時刻</label>
-          <input type="time" id="alarmTime" />
-        </div>
-        <div class="input-wrap">
-          <label>ラベル</label>
-          <input type="text" id="alarmLabel" placeholder="例：朝の会議" />
-        </div>
-        <button id="addBtn">追加</button>
-      </div>
-    </div>
-
-    <div class="glass-card alarm-list">
-      <h2><span class="icon">🔔</span> アラーム一覧</h2>
-      <ul id="alarms"></ul>
-      <div id="noAlarms" class="no-alarms">
-        <div class="no-alarms-icon">🌙</div>
-        <p>アラームがありません</p>
-      </div>
-    </div>
-  </div>
-
-  <div id="ringOverlay" class="ring-overlay hidden">
-    <div class="ring-box">
-      <div class="ring-ripple"></div>
-      <div class="ring-icon">🔔</div>
-      <p class="ring-label" id="ringLabel"></p>
-      <p class="ring-time" id="ringTime"></p>
-      <button id="stopBtn">止める</button>
+  <div id="detailModal" class="modal hidden">
+    <div class="modal-backdrop" id="modalBackdrop"></div>
+    <div class="modal-box glass-card">
+      <button class="modal-close" id="modalClose">✕</button>
+      <div id="modalBody"></div>
     </div>
   </div>
 
