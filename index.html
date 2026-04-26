@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>アラームアプリ</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <h1>アラームアプリ</h1>
+
+    <div class="clock" id="clock">00:00:00</div>
+
+    <div class="add-alarm">
+      <h2>アラームを追加</h2>
+      <div class="input-row">
+        <input type="time" id="alarmTime" />
+        <input type="text" id="alarmLabel" placeholder="ラベル（任意）" />
+        <button id="addBtn">追加</button>
+      </div>
+    </div>
+
+    <div class="alarm-list">
+      <h2>アラーム一覧</h2>
+      <ul id="alarms"></ul>
+      <p id="noAlarms" class="no-alarms">アラームがありません</p>
+    </div>
+  </div>
+
+  <div id="ringOverlay" class="ring-overlay hidden">
+    <div class="ring-box">
+      <div class="ring-icon">🔔</div>
+      <p id="ringLabel" class="ring-label"></p>
+      <p id="ringTime" class="ring-time"></p>
+      <button id="stopBtn">止める</button>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
