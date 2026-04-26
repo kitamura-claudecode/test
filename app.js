@@ -1,140 +1,170 @@
 (function () {
   'use strict';
 
-  const clockEl     = document.getElementById('clock');
-  const dateEl      = document.getElementById('date');
-  const alarmTimeEl = document.getElementById('alarmTime');
-  const alarmLabelEl= document.getElementById('alarmLabel');
-  const addBtn      = document.getElementById('addBtn');
-  const alarmsEl    = document.getElementById('alarms');
-  const noAlarmsEl  = document.getElementById('noAlarms');
-  const ringOverlay = document.getElementById('ringOverlay');
-  const ringLabelEl = document.getElementById('ringLabel');
-  const ringTimeEl  = document.getElementById('ringTime');
-  const stopBtn     = document.getElementById('stopBtn');
+  const TOTAL_POKEMON = 1025;
 
-  let alarms = JSON.parse(localStorage.getItem('alarms') || '[]');
-  let audioCtx = null;
-  let ringingNodes = [];
-  let ringingId = null;
+  const STAT_LABELS = {
+    'hp':              'HP',
+    'attack':          'ATK',
+    'defense':         'DEF',
+    'special-attack':  'SpA',
+    'special-defense': 'SpD',
+    'speed':           'SPD',
+  };
 
-  const DAYS = ['日', '月', '火', '水', '木', '金', '土'];
-  const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  // Per-stat visual maximum for bar scaling
+  const STAT_MAX = {
+    'hp':              255,
+    'attack':          190,
+    'defense':         230,
+    'special-attack':  194,
+    'special-defense': 230,
+    'speed':           200,
+  };
 
-  function pad(n) { return String(n).padStart(2, '0'); }
+  // Gradient color per stat
+  const STAT_COLORS = {
+    'hp':              ['#f87171', '#ef4444'],
+    'attack':          ['#fb923c', '#f97316'],
+    'defense':         ['#facc15', '#eab308'],
+    'special-attack':  ['#60a5fa', '#3b82f6'],
+    'special-defense': ['#34d399', '#10b981'],
+    'speed':           ['#c084fc', '#a855f7'],
+  };
 
-  function updateClock() {
-    const now = new Date();
-    clockEl.textContent = pad(now.getHours()) + ':' + pad(now.getMinutes()) + ':' + pad(now.getSeconds());
-    dateEl.textContent  = MONTHS[now.getMonth()] + ' ' + now.getDate() + '  ·  ' + DAYS[now.getDay()] + '曜日';
-    checkAlarms(now);
+  const card        = document.getElementById('card');
+  const initialState = document.getElementById('initialState');
+  const loading     = document.getElementById('loading');
+  const display     = document.getElementById('pokemonDisplay');
+  const rollBtn     = document.getElementById('rollBtn');
+
+  const idEl       = document.getElementById('pokemonId');
+  const imgEl      = document.getElementById('pokemonImg');
+  const nameEl     = document.getElementById('pokemonName');
+  const badgesEl   = document.getElementById('typeBadges');
+  const heightEl   = document.getElementById('pokemonHeight');
+  const weightEl   = document.getElementById('pokemonWeight');
+  const abilityEl  = document.getElementById('pokemonAbility');
+  const statsGrid  = document.getElementById('statsGrid');
+
+  function showState(state) {
+    initialState.classList.add('hidden');
+    loading.classList.add('hidden');
+    display.classList.add('hidden');
+    if (state === 'initial') initialState.classList.remove('hidden');
+    if (state === 'loading') loading.classList.remove('hidden');
+    if (state === 'display') display.classList.remove('hidden');
   }
 
-  setInterval(updateClock, 1000);
-  updateClock();
+  function randomId() {
+    return Math.floor(Math.random() * TOTAL_POKEMON) + 1;
+  }
 
-  function checkAlarms(now) {
-    if (ringingId !== null) return;
-    if (now.getSeconds() !== 0) return;
-    const hhmm = pad(now.getHours()) + ':' + pad(now.getMinutes());
-    alarms.forEach(function (alarm) {
-      if (alarm.enabled && alarm.time === hhmm) startRinging(alarm);
+  function capitalize(str) {
+    return str.charAt(0).toUpperCase() + str.slice(1);
+  }
+
+  // Format hyphenated name nicely (e.g. "mr-mime" → "Mr. Mime")
+  function formatName(name) {
+    return name.split('-').map(capitalize).join(' ');
+  }
+
+  function buildTypeBadges(types) {
+    badgesEl.innerHTML = '';
+    types.forEach(function (t) {
+      var span = document.createElement('span');
+      span.className = 'type-badge type-' + t.type.name;
+      span.textContent = t.type.name;
+      badgesEl.appendChild(span);
     });
   }
 
-  function startRinging(alarm) {
-    ringingId = alarm.id;
-    ringLabelEl.textContent = alarm.label || '';
-    ringTimeEl.textContent  = alarm.time;
-    ringOverlay.classList.remove('hidden');
-    playBeep();
-  }
+  function buildStats(stats) {
+    statsGrid.innerHTML = '';
+    stats.forEach(function (s) {
+      var name  = s.stat.name;
+      var value = s.base_stat;
+      var max   = STAT_MAX[name] || 255;
+      var pct   = Math.min(100, Math.round((value / max) * 100));
+      var colors = STAT_COLORS[name] || ['#a78bfa', '#7c3aed'];
 
-  function playBeep() {
-    try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
-    catch (e) { return; }
-
-    function beepOnce() {
-      if (ringingId === null) return;
-      var osc  = audioCtx.createOscillator();
-      var gain = audioCtx.createGain();
-      osc.connect(gain);
-      gain.connect(audioCtx.destination);
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(880, audioCtx.currentTime);
-      gain.gain.setValueAtTime(0.5, audioCtx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.7);
-      osc.start(audioCtx.currentTime);
-      osc.stop(audioCtx.currentTime + 0.7);
-      ringingNodes.push(osc);
-      setTimeout(beepOnce, 1000);
-    }
-    beepOnce();
-  }
-
-  function stopRinging() {
-    ringingId = null;
-    ringOverlay.classList.add('hidden');
-    ringingNodes.forEach(function (n) { try { n.stop(); } catch (e) {} });
-    ringingNodes = [];
-    if (audioCtx) { audioCtx.close(); audioCtx = null; }
-  }
-
-  stopBtn.addEventListener('click', stopRinging);
-
-  addBtn.addEventListener('click', function () {
-    var time = alarmTimeEl.value;
-    if (!time) { alert('時刻を選択してください'); return; }
-    alarms.push({ id: Date.now(), time: time, label: alarmLabelEl.value.trim(), enabled: true });
-    saveAndRender();
-    alarmTimeEl.value  = '';
-    alarmLabelEl.value = '';
-  });
-
-  function render() {
-    alarmsEl.innerHTML = '';
-    noAlarmsEl.style.display = alarms.length === 0 ? 'block' : 'none';
-
-    alarms.slice().sort(function (a, b) { return a.time.localeCompare(b.time); }).forEach(function (alarm) {
-      var li = document.createElement('li');
-      li.className = 'alarm-item' + (alarm.enabled ? '' : ' disabled');
-      li.dataset.id = alarm.id;
-      li.innerHTML =
-        '<span class="alarm-time">' + alarm.time + '</span>' +
-        '<span class="alarm-label">' + escHtml(alarm.label) + '</span>' +
-        '<div class="alarm-actions">' +
-          '<label class="toggle-switch">' +
-            '<input type="checkbox" ' + (alarm.enabled ? 'checked' : '') + ' data-id="' + alarm.id + '" class="toggle-input">' +
-            '<span class="slider"></span>' +
-          '</label>' +
-          '<button class="delete-btn" data-id="' + alarm.id + '">削除</button>' +
+      var row = document.createElement('div');
+      row.className = 'stat-row';
+      row.innerHTML =
+        '<span class="stat-name">' + (STAT_LABELS[name] || name) + '</span>' +
+        '<span class="stat-val">' + value + '</span>' +
+        '<div class="stat-bar-bg">' +
+          '<div class="stat-bar" style="width:0%;background:linear-gradient(90deg,' + colors[0] + ',' + colors[1] + ')"></div>' +
         '</div>';
-      alarmsEl.appendChild(li);
-    });
+      statsGrid.appendChild(row);
 
-    document.querySelectorAll('.toggle-input').forEach(function (el) {
-      el.addEventListener('change', function () {
-        var alarm = alarms.find(function (a) { return a.id === Number(this.dataset.id); }, this);
-        if (alarm) { alarm.enabled = this.checked; saveAndRender(); }
-      });
-    });
-
-    document.querySelectorAll('.delete-btn').forEach(function (el) {
-      el.addEventListener('click', function () {
-        alarms = alarms.filter(function (a) { return a.id !== Number(el.dataset.id); });
-        saveAndRender();
+      // Animate bar width on next frame
+      requestAnimationFrame(function () {
+        requestAnimationFrame(function () {
+          row.querySelector('.stat-bar').style.width = pct + '%';
+        });
       });
     });
   }
 
-  function saveAndRender() {
-    localStorage.setItem('alarms', JSON.stringify(alarms));
-    render();
+  function getAbilityLabel(abilities) {
+    var main = abilities.find(function (a) { return !a.is_hidden; });
+    if (!main) main = abilities[0];
+    return main ? formatName(main.ability.name) : '-';
   }
 
-  function escHtml(str) {
-    return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  function applyTypeAccent(primaryType) {
+    // Tint the card border with the primary type color
+    var typeColorMap = {
+      normal: '#7a7a6a', fire: '#d45c0a', water: '#3a72e8',
+      electric: '#c9aa0a', grass: '#4a9c30', ice: '#4daaaa',
+      fighting: '#a02020', poison: '#8a30a0', ground: '#b08020',
+      flying: '#7060d0', psychic: '#d03070', bug: '#7a8a10',
+      rock: '#8a7020', ghost: '#503878', dragon: '#4020c8',
+      dark: '#4a3828', steel: '#7a7a9a', fairy: '#c04878',
+    };
+    var color = typeColorMap[primaryType] || '#7c3aed';
+    card.style.borderColor = color + '66';
+    card.style.boxShadow = '0 8px 40px rgba(0,0,0,0.35), 0 0 0 1px ' + color + '33';
   }
 
-  render();
+  function renderPokemon(data) {
+    idEl.textContent  = '#' + String(data.id).padStart(3, '0');
+    nameEl.textContent = formatName(data.name);
+
+    var artwork = data.sprites.other['official-artwork'].front_default
+                  || data.sprites.front_default
+                  || '';
+    imgEl.src = artwork;
+    imgEl.alt = data.name;
+
+    buildTypeBadges(data.types);
+    heightEl.textContent = (data.height / 10).toFixed(1) + ' m';
+    weightEl.textContent = (data.weight / 10).toFixed(1) + ' kg';
+    abilityEl.textContent = getAbilityLabel(data.abilities);
+    buildStats(data.stats);
+
+    applyTypeAccent(data.types[0].type.name);
+    showState('display');
+  }
+
+  async function fetchRandom() {
+    rollBtn.disabled = true;
+    showState('loading');
+
+    try {
+      var id = randomId();
+      var res = await fetch('https://pokeapi.co/api/v2/pokemon/' + id);
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      var data = await res.json();
+      renderPokemon(data);
+    } catch (err) {
+      showState('initial');
+      alert('ポケモンの取得に失敗しました。もう一度お試しください。');
+    } finally {
+      rollBtn.disabled = false;
+    }
+  }
+
+  rollBtn.addEventListener('click', fetchRandom);
 }());

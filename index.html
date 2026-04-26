@@ -3,64 +3,76 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>アラームアプリ</title>
+  <title>ランダムポケモン</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="bg-orbs">
-    <div class="orb orb1"></div>
-    <div class="orb orb2"></div>
-    <div class="orb orb3"></div>
+  <div class="bg-blobs">
+    <div class="blob blob1"></div>
+    <div class="blob blob2"></div>
   </div>
 
   <div class="container">
-    <header class="header">
-      <div class="logo">⏰</div>
-      <h1>Alarm Clock</h1>
+    <header>
+      <h1>ランダムポケモン</h1>
+      <p class="subtitle">ボタンをクリックしてランダムなポケモンを表示！</p>
     </header>
 
-    <div class="clock-card">
-      <div class="date" id="date"></div>
-      <div class="clock" id="clock">00:00:00</div>
-      <div class="clock-bar"></div>
-    </div>
+    <div class="card" id="card">
+      <div class="initial-state" id="initialState">
+        <div class="pokeball">
+          <div class="pokeball-top"></div>
+          <div class="pokeball-middle"></div>
+          <div class="pokeball-bottom"></div>
+          <div class="pokeball-button"></div>
+        </div>
+        <p>ボタンをクリック！</p>
+      </div>
 
-    <div class="glass-card add-alarm">
-      <h2><span class="icon">＋</span> アラームを追加</h2>
-      <div class="input-row">
-        <div class="input-wrap">
-          <label>時刻</label>
-          <input type="time" id="alarmTime" />
+      <div class="loading hidden" id="loading">
+        <div class="spinner"></div>
+        <p>読み込み中...</p>
+      </div>
+
+      <div class="pokemon-display hidden" id="pokemonDisplay">
+        <div class="pokemon-header">
+          <span class="pokemon-id" id="pokemonId">#001</span>
+          <div class="type-badges" id="typeBadges"></div>
         </div>
-        <div class="input-wrap">
-          <label>ラベル</label>
-          <input type="text" id="alarmLabel" placeholder="例：朝の会議" />
+        <div class="pokemon-img-wrap">
+          <img class="pokemon-img" id="pokemonImg" src="" alt="" />
         </div>
-        <button id="addBtn">追加</button>
+        <h2 class="pokemon-name" id="pokemonName">Bulbasaur</h2>
+        <div class="info-row">
+          <div class="info-item">
+            <span class="info-label">高さ</span>
+            <span class="info-value" id="pokemonHeight">-</span>
+          </div>
+          <div class="info-divider"></div>
+          <div class="info-item">
+            <span class="info-label">重さ</span>
+            <span class="info-value" id="pokemonWeight">-</span>
+          </div>
+          <div class="info-divider"></div>
+          <div class="info-item">
+            <span class="info-label">特性</span>
+            <span class="info-value" id="pokemonAbility">-</span>
+          </div>
+        </div>
+        <div class="stats-section">
+          <div class="stats-title">基本ステータス</div>
+          <div class="stats-grid" id="statsGrid"></div>
+        </div>
       </div>
     </div>
 
-    <div class="glass-card alarm-list">
-      <h2><span class="icon">🔔</span> アラーム一覧</h2>
-      <ul id="alarms"></ul>
-      <div id="noAlarms" class="no-alarms">
-        <div class="no-alarms-icon">🌙</div>
-        <p>アラームがありません</p>
-      </div>
-    </div>
-  </div>
-
-  <div id="ringOverlay" class="ring-overlay hidden">
-    <div class="ring-box">
-      <div class="ring-ripple"></div>
-      <div class="ring-icon">🔔</div>
-      <p class="ring-label" id="ringLabel"></p>
-      <p class="ring-time" id="ringTime"></p>
-      <button id="stopBtn">止める</button>
-    </div>
+    <button class="roll-btn" id="rollBtn">
+      <span class="dice">🎲</span>
+      ランダムに選ぶ
+    </button>
   </div>
 
   <script src="app.js"></script>
