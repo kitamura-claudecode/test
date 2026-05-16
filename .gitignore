@@ -1,0 +1,15 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Sync runtime artifacts (secrets & state)
+sync/.env
+sync/config.yaml
+sync/state.json
+sync/sync.log
+sync/credentials/
+
+# OS
+.DS_Store

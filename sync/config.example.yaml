@@ -1,0 +1,27 @@
+# Google Calendar → iCloud sync configuration
+# Copy this to config.yaml and edit values.
+
+google:
+  # 同期元の Google カレンダー ID 一覧 (primary も可)
+  # 複数指定すると順番に同期される
+  calendar_ids:
+    - primary
+    # - example@group.calendar.google.com
+
+  # 今日から何日先までの未来イベントを取得するか
+  days_ahead: 60
+
+icloud:
+  # 書き込み先 iCloud カレンダーの表示名
+  # 事前に iCloud カレンダーアプリでこの名前のカレンダーを作成しておくこと
+  calendar_name: "Synced from Google"
+
+sync:
+  # state ファイル (Google event ID ↔ iCloud href の対応) 保存先
+  state_file: "state.json"
+
+  # 1リクエストごとのスリープ(秒)。iCloud CalDAV の同時書き込み負荷を抑える
+  request_interval_sec: 0.2
+
+  # ログファイル
+  log_file: "sync.log"

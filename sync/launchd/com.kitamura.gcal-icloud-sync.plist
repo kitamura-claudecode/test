@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+  "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>com.kitamura.gcal-icloud-sync</string>
+
+  <!--
+    Edit the two paths below to match your machine:
+      WorkingDirectory  → absolute path to the cloned repository
+      ProgramArguments  → absolute path to the venv's python and sync.py
+  -->
+  <key>WorkingDirectory</key>
+  <string>/Users/kitamura/projects/gcal-icloud-sync</string>
+
+  <key>ProgramArguments</key>
+  <array>
+    <string>/Users/kitamura/projects/gcal-icloud-sync/.venv/bin/python</string>
+    <string>/Users/kitamura/projects/gcal-icloud-sync/sync/sync.py</string>
+  </array>
+
+  <!-- Run every hour (3600 seconds) -->
+  <key>StartInterval</key>
+  <integer>3600</integer>
+
+  <!-- Also run once immediately on load -->
+  <key>RunAtLoad</key>
+  <true/>
+
+  <key>StandardOutPath</key>
+  <string>/Users/kitamura/Library/Logs/gcal-icloud-sync.log</string>
+  <key>StandardErrorPath</key>
+  <string>/Users/kitamura/Library/Logs/gcal-icloud-sync.err.log</string>
+</dict>
+</plist>
